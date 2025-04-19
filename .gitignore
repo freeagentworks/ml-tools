@@ -1,0 +1,4 @@
+# macOSの隠しファイルを除外
+.DS_Store
+logs.log
+._*
