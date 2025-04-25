@@ -251,6 +251,7 @@ if btnPred:
     else:
         st.subheader("モデルが作成されていません。")
         
+    #ここから未解決
     pred = predict_model(usemodel, data=dfval)
     st.dataframe(pred, width=1000)
     plt_evalute(usemodel)
