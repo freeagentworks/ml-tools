@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from pycaret.clustering import *
-#from pycaret.clustering import create_model
 import matplotlib.pyplot as plt
 from PIL import Image
 
