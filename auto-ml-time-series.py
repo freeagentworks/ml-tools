@@ -51,7 +51,7 @@ def plt_chart(df, pred):
     #予測データプロット
     plt.plot(pred.index, pred["y_pred"].values, label="予測データ")
     plt.title('時系列予測チャート')
-    plt.xlabel('日付')
+    plt.xlabel('時系列')
     plt.ylabel(df.columns[0])
     plt.legend()
     return plt    
@@ -69,7 +69,7 @@ if 'model' not in st.session_state:
 st.title("時系列データの予測")
 
 st.text("時系列データを分析します")
-image = Image.open("./images/headertime.png")
+image = Image.open("./images/headertimeseries.png")
 st.image(image)
 st.caption("データ(CSV)をアップロードしてください！")
 
@@ -78,17 +78,17 @@ upfile = st.file_uploader("データをアップロードしてください", ty
 
 #データを表示するフレーム
 loaddata = pd.DataFrame()
-dfview = st.dataframe(loaddata)
+dfview = st.dataframe(loaddata, width=1000)
 
 col1, col2 = st.columns(2)
 with col1:
     selectmtd = st.selectbox("ベストモデル自動選択［時間かかります！］", options=opm, index=0)
+    fhspan = st.text_input("予測ホライズン:", value=3)
     span = st.selectbox("時系列選択：", options=["Y","M","D"], index=1) 
-    chktune = st.checkbox("モデルをチューニングする")
 with col2:
     modellst = st.selectbox("モデル指定", options=mlist, index=9)
-    fhspan = st.text_input("予測ホライズン:", value=3)
     predspan = st.text_input("予測期間:", value=10)
+    chktune = st.checkbox("モデルをチューニングする")
 
 st.markdown(
     """
@@ -97,13 +97,13 @@ st.markdown(
         display: block;
         margin-left: auto;
         margin-right: auto;
-        width: 30%;
+        width: 50%;
         background-color: #0000ff;  /* 背景色 */
         color: white;  /* 文字色 */
         padding: 15px;  /* パディング */
         text-align: center;  /* テキストを中央揃え */
         text-decoration: none;  /* テキストの下線をなし */
-        font-size: 16px;  /* フォントサイズ */
+        font-size: 25px;  /* フォントサイズ */
         border-radius: 4px;  /* 角を丸くする */
         cursor: pointer;  /* カーソルをポインタに */
     }
@@ -111,12 +111,12 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )    
-btmln = st.button("学習")
+btmln = st.button("学習 & 予測")
 
 #予測データを表示するフレーム
 st.subheader("予測:")
 dfpred = pd.DataFrame()
-predview = st.dataframe(dfpred)
+predview = st.dataframe(dfpred, width=1000)
 
 
 #ファイルがアップロードされたら
@@ -128,29 +128,32 @@ if upfile:
     #セットアップ
     s.setup(data=loaddata, fh=3, session_id=123)
     st.write("セットアップ結果:")
-    st.write(s.pull())
+    st.dataframe(s.pull(), width=1000, height=150)
     #データフレームにアップロードデータ表示
-    dfview.dataframe(loaddata, height=100)
+    dfview.dataframe(loaddata, width=1000 ,height=100)
     
 if btmln:
+    #Get ModelID
     modelID = s.models()[s.models().Name==modellst].index.values[0]
     if selectmtd=="モデルを指定する":
         model = s.create_model(modelID)
         #評価指数表示
         st.write("評価指標:")
-        st.write(s.pull())
+        st.dataframe(s.pull(), width=1000)
         pred_holdout = s.predict_model(model)
-        predview.dataframe(pred_holdout, height=150)
+        predview.dataframe(pred_holdout, width=1000, height=150)
         st.session_state['model'] = model
+        st.write(model)
         s.plot_model(model, display_format='streamlit')
         #指定期間予想させチャートに表示
         predection = s.predict_model(model, fh=int(predspan))
+        st.subheader(f"指定期間{predspan}期間の予測チャート")
         plt = plt_chart(loaddata, predection)
         st.pyplot(plt)
     else:
         best = s.compare_models()
         st.write("モデルの比較結果")
-        st.write(s.pull())
+        st.dataframe(s.pull(), width=1000)
         pred_holdout = s.predict_model(best)
         predview.dataframe(pred_holdout, height=150)
         st.write("ベストモデル評価指標")
@@ -162,8 +165,9 @@ if btmln:
         
     if chktune:
         tunedmodel = s.tune_model(st.session_state['model'])
-        st.write(s.pull())
+        st.dataframe(s.pull(), width=1000)
         predection = s.predict_model(tunedmodel, fh=int(predspan))
+        st.subheader(f"チューニング後{predspan}期間の予測チャート")
         plt = plt_chart(loaddata, predection)
         st.pyplot(plt)        
         
