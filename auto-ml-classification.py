@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from pycaret.classification import *
+from pycaret.classification import ClassificationExperiment
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -30,6 +30,9 @@ def plt_evalute(model):
     try:
         s.plot_model(model, plot='feature_all', display_format='streamlit')
         s.plot_model(model, plot='feature', display_format='streamlit')
+    except:
+        print("Error feature")
+    try:
         s.plot_model(model, plot='calibration', display_format='streamlit')
     except:
         st.error("モデルの評価指標を一部表示できませんでした。")
@@ -39,9 +42,15 @@ def plt_evalute(model):
     s.plot_model(model, plot='pr', display_format='streamlit')
     s.plot_model(model, plot='error', display_format='streamlit')
     s.plot_model(model, plot='class_report', display_format='streamlit')
-    s.plot_model(model, plot='boundary', display_format='streamlit')
-    s.plot_model(model, plot='dimension', display_format='streamlit')
+    try:
+        s.plot_model(model, plot='boundary', display_format='streamlit')
+    except:
+        print("Error boundary")
     
+    try:
+        s.plot_model(model, plot='dimension', display_format='streamlit')
+    except:
+        print("Error dimension")
 
 
 ##########################################################################
