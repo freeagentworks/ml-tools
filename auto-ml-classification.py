@@ -34,8 +34,8 @@ def plt_evalute(model):
     except:
         st.error("モデルの評価指標を一部表示できませんでした。")
         
-    s.plot_model(model, plot='auc', display_format='streamlit')
     s.plot_model(model, plot='confusion_matrix', display_format='streamlit')
+    s.plot_model(model, plot='auc', display_format='streamlit')
     s.plot_model(model, plot='pr', display_format='streamlit')
     s.plot_model(model, plot='error', display_format='streamlit')
     s.plot_model(model, plot='class_report', display_format='streamlit')
@@ -184,7 +184,9 @@ if btnTrain:
         st.subheader("予測結果：")
         st.write(pred_holdout)
         st.write(s.pull())
+        print("◾️格納時のモデル：",best_model)
         st.session_state['bestmodel'] = best_model
+        s.save_model(best_model, "currentmodel_pipeline")
         state.success("モデルの検証")
         st.subheader("評価指標：")
         plt_evalute(best_model)
@@ -203,7 +205,9 @@ if btnTrain:
         st.subheader("予測結果：")
         st.write(pred_holdout)
         st.write(s.pull())
-        st.session_state['model'] = model       
+        print("◾️格納時のモデル：",model)
+        st.session_state['model'] = model
+        s.save_model(model, "currentmodel_pipeline")
         state.success("モデルの検証")
         st.subheader("評価指標：")
         plt_evalute(model)
@@ -228,31 +232,40 @@ if btnTrain:
         st.write(pred_holdout)
         st.write(s.pull())
         state.success("モデルの検証")
-        #セッション変数にモデルを格納
-        if chkbest:
-            st.session_state['tunedbestmodel']=tunedmodel
-        else:
-            st.session_state['tunemodel']=tunedmodel            
+        print("◾️格納時のモデル：",tunedmodel)
+        #モデルのシリアライズ
+        s.save_model(tunedmodel, "currentmodel_pipeline")
+        # #セッション変数にモデルを格納
+        # if chkbest:
+        #     st.session_state['tunedbestmodel']=tunedmodel
+        # else:
+        #     st.session_state['tunemodel']=tunedmodel            
         st.subheader("評価指標：")
         plt_evalute(tunedmodel)
         state.success("チューニング後グラフ")
         state.caption("チューニング完了！")            
 
 if btnPred:
-    usemodel = None
+    isTrain = False
     if st.session_state['tunedbestmodel'] is not None:
-        usemodel = st.session_state['tunedbestmodel']
+        isTrain = True
     elif st.session_state['bestmodel'] is not None:
-        usemodel = st.session_state['bestmodel']
+        isTrain = True
     elif st.session_state['tunemodel'] is not None:
-        usemodel = st.session_state['tunemodel']
+        isTrain = True
     elif st.session_state['model'] is not None:
-        usemodel = st.session_state['model']        
+        isTrain = True
     else:
-        st.subheader("モデルが作成されていません。")
+        st.subheader("最初に教師付きデータを学習させて下さい")
         
-    #ここから未解決
-    pred = predict_model(usemodel, data=dfval)
-    st.dataframe(pred, width=1000)
-    plt_evalute(usemodel)
+    if isTrain:
+        #保存したモデルを呼び出す
+        usemodel = s.load_model("currentmodel_pipeline")
+        #予測
+        pred = s.predict_model(usemodel, data=dfval)
+        #表示
+        st.subheader("予測結果付きデータセット：")
+        st.dataframe(pred, width=1000)
+        st.write(usemodel)
+    
         
