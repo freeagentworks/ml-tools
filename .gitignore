@@ -1,5 +1,6 @@
 # macOSの隠しファイルを除外
 .DS_Store
 logs.log
+currentmodel_pipeline.pkl
 catboost_info/
 ._*
