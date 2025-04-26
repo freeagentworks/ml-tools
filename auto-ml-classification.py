@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from pycaret.classification import ClassificationExperiment
-import matplotlib.pyplot as plt
 from PIL import Image
 
 
