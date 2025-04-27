@@ -70,9 +70,6 @@ st.markdown(
 )
 btndetection = st.button("異常値検出")
 
-#状態確認コントロール
-state = st.status("進捗状態確認")
-
 # #予測データを表示するフレーム
 # st.subheader("検出結果：")
 # dfpred = pd.DataFrame()
@@ -84,24 +81,27 @@ if upfile:
     #セットアップ
     loaddata = pd.read_csv(upfile, index_col=0)
     s.setup(data=loaddata, session_id=123)
-    st.write("セットアップ結果:")
-    st.dataframe(s.pull(), width=1000, height=100)
+    #st.write("セットアップ結果:")
+    #st.dataframe(s.pull(), width=1000, height=100)
+    
     #データフレームにアップロードデータ表示
     dfview.dataframe(loaddata, width=1000 ,height=200)
 
 #コマンドボタンが押された場合の処理
 if btndetection:
+    #状態確認コントロール
+    state = st.status("進捗状態確認")
     #Get ModelID
     modelID = s.models()[s.models().Name == modellst].index.values[0]
     model = s.create_model(modelID)
     state.success("モデル作成完了")
     result = s.assign_model(model)
+    st.subheader("検出結果：")
+    st.dataframe(result, width=1000, height=300)
     state.success("異常値予測完了")
     state.text("評価チャート描画中...")
     plt_evalute(model=model)
-    state.success("描画完了")
-    st.subheader("検出結果：")
-    st.dataframe(result, width=1000, height=300)
     state.success("完了")
+    
     
     
