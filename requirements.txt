@@ -2,6 +2,7 @@ streamlit==1.44.1
 Pillow==9.5.0
 scikit-learn==1.4.2
 pycaret==3.3.2
+umap-learn==0.5.7
 numpy==1.25.1
 pandas==2.0.3
 japanize_matplotlib==1.1.3
