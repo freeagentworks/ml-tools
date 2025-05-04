@@ -1,16 +1,17 @@
 import streamlit as st
 import pandas as pd
-from pycaret.clustering import *
+from pycaret.clustering import ClusteringExperiment
 import matplotlib.pyplot as plt
 from PIL import Image
 
+s = ClusteringExperiment()
 
 def plot_cluster_charet(model):
-    plot_model(model, plot='elbow', display_format='streamlit')
-    plot_model(model, plot='cluster', display_format='streamlit')
-    plot_model(model, plot='tsne', display_format='streamlit')
-    plot_model(model, plot='silhouette', display_format='streamlit')
-    plot_model(model, plot='distribution', display_format='streamlit')
+    s.plot_model(model, plot='elbow', display_format='streamlit')
+    s.plot_model(model, plot='cluster', display_format='streamlit')
+    s.plot_model(model, plot='tsne', display_format='streamlit')
+    s.plot_model(model, plot='silhouette', display_format='streamlit')
+    s.plot_model(model, plot='distribution', display_format='streamlit')
     #evaluate_model(model, display_format='streamlit')
     
 
@@ -76,16 +77,16 @@ if upfile:
     df = pd.read_csv(upfile)
     st.session_state['data'] = df
     dfview.dataframe(df, height=150)
-    setdata = setup(df, session_id = 123, ignore_features=[jogaicol])
+    setdata = s.setup(df, session_id = 123, ignore_features=[jogaicol])
 
 #
 if btnCluster:
-    model = create_model(lstmodel, num_clusters=int(clusternum))
+    model = s.create_model(lstmodel, num_clusters=int(clusternum))
     st.session_state['model'] = model
     st.subheader("分類結果：")
     plot_cluster_charet(model)
     st.subheader("分類済データセット：")
-    st.dataframe(assign_model(model))
+    st.dataframe(s.assign_model(model))
 
 
     
